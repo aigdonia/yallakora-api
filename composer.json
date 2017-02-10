@@ -1,0 +1,17 @@
+{
+	"autoload": {
+		"psr-4": {
+			"SlimRest\\": "app/"
+		}
+	},
+	"require": {
+		"slim/slim": "^3.0",
+		"firebase/php-jwt":"^2.0",
+		"php-activerecord/php-activerecord": "*",
+		"monolog/monolog": "*",
+    "tuupola/cors-middleware": "*"
+	},
+  "require-dev" : {
+    "zeuxisoo/slim-whoops": "0.5.*"
+  }
+}
