@@ -14,8 +14,13 @@
         "name" => $this->id,
         "title" => $this->name,
       ];
-      if(!empty($this->logo))
-        $attributes['logo'] = $this->logo;
+      if(!empty($this->logo)){
+        $path = 'myfolder/myimage.png';
+        $type = pathinfo($this->logo, PATHINFO_EXTENSION);
+        $data = file_get_contents($this->logo);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        $attributes['logo'] = $base64;
+      }
 
       return $attributes;
     }

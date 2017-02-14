@@ -11,8 +11,7 @@ $app->attachMiddleWare(new \Tuupola\Middleware\Cors([
   "origin" => ["*"],
   "methods" => ["GET", "POST", "PUT", "PATCH", "DELETE"],
   "headers.allow" => [
-    "Authorization", "If-Match", "Content-Type",
-    "If-Unmodified-Since", "Access-Control-Request-Method"],
+    "Content-Type", "Access-Control-Request-Method"],
   "cache" => 86400,
   "error" => function ($request, $response, $arguments) {
         $data["status"] = "error";
@@ -29,6 +28,7 @@ new \SlimRest\Resource\Ping($app);
 new \SlimRest\Resource\Channels($app);
 new \SlimRest\Resource\Streams($app);
 new \SlimRest\Resource\Servers($app);
+new \SlimRest\Resource\Lookups($app);
 // end init resources
 
 $app->run();

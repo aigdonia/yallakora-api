@@ -10,6 +10,7 @@ class Streams extends Resource{
     $this->post('/channels/{channel_id}/stream', [$this, 'createNewStream']);
     $this->put('/streams/{stream_id}', [$this, 'updateStream']);
     $this->post('/streams/{stream_id}', [$this, 'updateStream']);
+    $this->post('/streams/{stream_id}/remove', [$this, 'deleteStream']);
 	}
 
 	public function createNewStream($req, $res, $args){
@@ -18,6 +19,7 @@ class Streams extends Resource{
     $newStream = new Stream([
       "channel_id" => $channel,
       "title" => $requestParams['title'],
+      "quality" => $requestParams['quality']
     ]);
 
     if(isset($requestParams['server'])){
@@ -55,6 +57,23 @@ class Streams extends Resource{
 
     $stream->save();
     return $this->respond($res, $stream->getDetails());
+  }
+
+  public function deleteStream($req, $res, $args) {
+    $stream_id = $args['stream_id'];
+    try{
+      $stream = Stream::find($stream_id);
+      $stream->delete();
+      return $this->respond($res, [
+        'stream' => $stream->getDetails()
+      ]);
+    } catch(\ActiveRecord\RecordNotFound $e){
+      return $this->respond($res, [
+        'error'=>[
+          'msg' => 'Stream Not Found'
+        ]
+      ], 404);
+    }
   }
 }
 
