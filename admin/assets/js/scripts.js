@@ -372,13 +372,13 @@
 
   function StreamModalController($uibModalInstance, channel, qualities,serversList, Stream){
     var vm = this;
-    vm.channelName = channel.name;
+    vm.channelName = channel.title;
     vm.serversList = serversList;
     vm.qualityList = qualities;
     vm.newStream = {};
 
     vm.createStream = function(){
-      Stream.createStream(channel.id, vm.newStream)
+      Stream.createStream(channel.name, vm.newStream)
         .then(function(stream){
           $uibModalInstance.close(stream);
         });
