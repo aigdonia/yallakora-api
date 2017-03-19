@@ -10,14 +10,17 @@ class Channels extends Resource{
 	public function routes(){
 		$this->get('/channels', [$this, 'listAllChannels']);
     $this->get('/channels/{channel}', [$this, 'getSingleChannel']);
+    $this->get('/channels/{channel}/streams', [$this, 'getSingleChannelStreams']);
     $this->post('/channels/{channel}/logo', [$this, 'updateChannelLogo']);
+    $this->put('/channels/{channel}/logo', [$this, 'updateChannelLogo']);
     $this->post('/channels', [$this, 'createNewChannel']);
     // $this->delete('/channels/{channel}', [$this, 'deleteSingleChannel']);
     $this->post('/channels/{channel}/remove', [$this, 'deleteSingleChannel']);
+    $this->patch('/channels/sort', [$this, 'sortChannels']);
 	}
 
 	public function listAllChannels($req, $res, $args){
-    $channels = Channel::find('all');
+    $channels = Channel::find('all', ['order'=>'sort asc']);
     $channels = array_reduce($channels, [$this, 'processChannelsArray'] , []);
     return $this->respond($res, $channels);
 	}
@@ -27,6 +30,13 @@ class Channels extends Resource{
     return $this->respond($res, [
       "channel" => $args['channel'],
       "data" => $channel->getDetails(),
+      "streams" => $channel->getStreams('all')
+    ]);
+  }
+
+  public function getSingleChannelStreams($req, $res, $args){
+    $channel = Channel::find($args['channel']);
+    return $this->respond($res, [
       "streams" => $channel->getStreams('all')
     ]);
   }
@@ -106,6 +116,16 @@ class Channels extends Resource{
     return $processedList;
   }
 
+  function sortChannels($req, $res, $args){
+    $channelsOrder = $req->getParsedBody()['channels'];
+    foreach($channelsOrder as $channelName => $channelOrder){
+      $v = Channel::update_all([
+        'set' => [ 'sort' => $channelOrder ],
+        'conditions' => ['id' => $channelName ]
+      ]);
+    }
+    return $this->respond($res, $channelsOrder);
+  }
 }
 
  ?>

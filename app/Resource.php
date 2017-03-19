@@ -34,6 +34,9 @@ abstract class Resource {
 	public function delete($route, $callback, $middleware = null){
 		return $this->app->route('delete', $route, $callback, $middleware);
 	}
+	public function patch($route, $callback, $middleware = null){
+		return $this->app->route('patch', $route, $callback, $middleware);
+	}
 
     // this method validates jwt token passed in Authorization header and retrive back the token information
     public function authorize($request){

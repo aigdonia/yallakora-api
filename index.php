@@ -11,8 +11,8 @@ $app->attachMiddleWare(new \Tuupola\Middleware\Cors([
   "origin" => ["*"],
   "methods" => ["GET", "POST", "PUT", "PATCH", "DELETE"],
   "headers.allow" => [
-    "Content-Type", "Access-Control-Request-Method"],
-  "cache" => 86400,
+    "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers"],
+  // "cache" => 86400,
   "error" => function ($request, $response, $arguments) {
         $data["status"] = "error";
         $data["message"] = $arguments["message"];

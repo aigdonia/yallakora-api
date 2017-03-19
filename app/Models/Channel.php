@@ -6,7 +6,7 @@
     static $before_validation = [];
 
     static $has_many = [
-      ['streams']
+      ['streams', 'order' => 'sort asc' ]
     ];
 
     public function getDetails(){

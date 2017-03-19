@@ -21,7 +21,7 @@ class App {
 
 
 	public function route($verb, $route, $callback, $mw = null){
-		if(in_array($verb, ['get', 'put', 'post', 'delete']))
+		if(in_array($verb, ['get', 'put', 'post', 'delete', 'patch']))
       if(is_null( $mw ))
   			return $this->app->$verb($route, $callback);
       else // heeey, we are going to attach some middlewares here

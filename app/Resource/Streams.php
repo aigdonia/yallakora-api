@@ -8,6 +8,7 @@ class Streams extends Resource{
 
 	public function routes(){
     $this->post('/channels/{channel_id}/stream', [$this, 'createNewStream']);
+    $this->patch('/streams/sort', [$this, 'sortChannelStreams']);
     $this->put('/streams/{stream_id}', [$this, 'updateStream']);
     $this->post('/streams/{stream_id}', [$this, 'updateStream']);
     $this->post('/streams/{stream_id}/remove', [$this, 'deleteStream']);
@@ -74,6 +75,20 @@ class Streams extends Resource{
         ]
       ], 404);
     }
+  }
+
+  public function sortChannelStreams($req, $res, $args){
+    $streamsOrder = $req->getParsedBody()['streams'];
+    $commited = Stream::transaction(function() use ($streamsOrder){
+      foreach($streamsOrder as $streamId => $streamOrder){
+        $stream = Stream::find($streamId);
+        $stream->sort = $streamOrder;
+        $f = $stream->save();
+        if(!$f)
+          return false;
+      }
+    });
+    return $this->respond($res, ['commited' => $commited]);
   }
 }
 
