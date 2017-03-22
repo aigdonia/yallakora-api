@@ -13,7 +13,8 @@
         "title" => $stream->title,
         "quality" => $stream->quality,
         "status" => $stream->status,
-        "stream_url" => $stream->remote_url
+        "stream_url" => $stream->remote_url,
+        "tag" => $stream->tag
       ];
       if(!is_null($stream->server_id)){
         $streamData['server'] = $stream->server->to_array();

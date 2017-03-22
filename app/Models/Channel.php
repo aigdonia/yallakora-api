@@ -13,6 +13,8 @@
       $attributes = [
         "name" => $this->id,
         "title" => $this->name,
+        "seo_desc" => $this->seo_desc,
+        "seo_keywords" => $this->seo_keywords
       ];
       if(!empty($this->logo)){
         $path = 'myfolder/myimage.png';

@@ -9,6 +9,10 @@ class Streams extends Resource{
 	public function routes(){
     $this->post('/channels/{channel_id}/stream', [$this, 'createNewStream']);
     $this->patch('/streams/sort', [$this, 'sortChannelStreams']);
+    $this->patch('/streams/status', [$this, 'setChannelStatus']); // Activate-Deactivate
+    $this->patch('/streams/move', [$this, 'moveStreamsToChannel']); // Move to Other Channel
+    $this->patch('/streams/remove', [$this, 'deleteStreams']); // Delete Channels
+
     $this->put('/streams/{stream_id}', [$this, 'updateStream']);
     $this->post('/streams/{stream_id}', [$this, 'updateStream']);
     $this->post('/streams/{stream_id}/remove', [$this, 'deleteStream']);
@@ -22,6 +26,10 @@ class Streams extends Resource{
       "title" => $requestParams['title'],
       "quality" => $requestParams['quality']
     ]);
+
+    if(isset($requestParams['tag'])){
+      $newStream->tag = $requestParams['tag'];
+    }
 
     if(isset($requestParams['server'])){
       $newStream->server_id = $requestParams['server'];
@@ -89,6 +97,80 @@ class Streams extends Resource{
       }
     });
     return $this->respond($res, ['commited' => $commited]);
+  }
+
+  //TODO Refactor the repeating part of flushing output
+  public function setChannelStatus($req, $res, $args){
+    $params = $req->getParsedBody();
+    $streamIDs = $params['streams'];
+    $status = in_array($params['status'],['idle','active'])?$params['status']:'idle';
+
+    $v = Stream::update_all([
+      'set' => ['status' => $status] ,
+      'conditions' => ['id in (?)', $streamIDs]
+    ]);
+
+    $streamsObj = Stream::find($streamIDs);
+    if(is_array($streamsObj)){
+      $streams = array_reduce($streamsObj, function($coll,$single){
+        $coll[] = $single->getDetails();
+        return $coll;
+      });
+    } else {
+      $streams = [ $streamsObj->getDetails() ];
+    }
+
+    return $this->respond($res,[
+      'streams' => $streams,
+    ]);
+  }
+
+  public function deleteStreams($req, $res, $args){
+    $streamIDs = $req->getParsedBody()['streams'];
+
+    $streamsObj = Stream::find($streamIDs);
+    if(is_array($streamsObj)){
+      $streams = array_reduce($streamsObj, function($coll,$single){
+        $coll[] = $single->getDetails();
+        return $coll;
+      });
+    } else {
+      $streams = [ $streamsObj->getDetails() ];
+    }
+
+    $v = Stream::delete_all([
+      'conditions' => [ 'id in (?)', $streamIDs ]
+    ]);
+
+    return $this->respond($res,[
+      'streams' => $streams,
+    ]);
+  }
+
+  public function moveStreamsToChannel($req, $res, $args){
+    $params = $req->getParsedBody();
+    $streamIDs = $params['streams'];
+    $channel_id = $params['channel_id'];
+
+    $v = Stream::update_all([
+      'set' => ['channel_id' => $channel_id] ,
+      'conditions' => ['id in (?)', $streamIDs]
+    ]);
+
+    $streamsObj = Stream::find($streamIDs);
+    if(is_array($streamsObj)){
+      $streams = array_reduce($streamsObj, function($coll,$single){
+        $coll[] = $single->getDetails();
+        return $coll;
+      });
+    } else {
+      $streams = [ $streamsObj->getDetails() ];
+    }
+
+
+    return $this->respond($res,[
+      'streams' => $streams,
+    ]);
   }
 }
 

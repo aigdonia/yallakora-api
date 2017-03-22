@@ -12,6 +12,7 @@ class Channels extends Resource{
     $this->get('/channels/{channel}', [$this, 'getSingleChannel']);
     $this->get('/channels/{channel}/streams', [$this, 'getSingleChannelStreams']);
     $this->post('/channels/{channel}/logo', [$this, 'updateChannelLogo']);
+    $this->post('/channels/{channel}/seo', [$this, 'updateChannelSEO']);
     $this->put('/channels/{channel}/logo', [$this, 'updateChannelLogo']);
     $this->post('/channels', [$this, 'createNewChannel']);
     // $this->delete('/channels/{channel}', [$this, 'deleteSingleChannel']);
@@ -72,6 +73,31 @@ class Channels extends Resource{
     } catch(\ActiveRecord\RecordNotFound $e){
       return $this->respond($res, [
         'error'=>[
+          'msg' => 'Channel Not Found'
+        ]
+      ], 404);
+    }
+  }
+
+  public function updateChannelSEO($req, $res, $args){
+    $channel_id = $args['channel'];
+    $seo_desc = $req->getParsedBody()['desc'];
+    $seo_keywords = $req->getParsedBody()['keywords'];
+
+    try {
+
+      $channel = Channel::find($channel_id);
+      $channel->seo_desc = $seo_desc;
+      $channel->seo_keywords = $seo_keywords;
+      if( $channel->save() )
+        return $this->respond($res, ['success'=>true]);
+      else {
+        return $this->respond($res, ['error'=>'Unable to update SEO terms'],500);
+      }
+
+    } catch (\ActiveRecord\RecordNotFound $e) {
+      return $this->respond($res, [
+        'error' => [
           'msg' => 'Channel Not Found'
         ]
       ], 404);
