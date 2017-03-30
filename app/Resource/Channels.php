@@ -13,7 +13,8 @@ class Channels extends Resource{
     $this->get('/channels/{channel}/streams', [$this, 'getSingleChannelStreams']);
     $this->post('/channels/{channel}/logo', [$this, 'updateChannelLogo']);
     $this->post('/channels/{channel}/seo', [$this, 'updateChannelSEO']);
-    $this->put('/channels/{channel}/logo', [$this, 'updateChannelLogo']);
+    $this->post('/channel/{channel}/title', [$this, 'updateChannelTitle']);
+    // $this->put('/channels/{channel}/logo', [$this, 'updateChannelLogo']);
     $this->post('/channels', [$this, 'createNewChannel']);
     // $this->delete('/channels/{channel}', [$this, 'deleteSingleChannel']);
     $this->post('/channels/{channel}/remove', [$this, 'deleteSingleChannel']);
@@ -83,12 +84,15 @@ class Channels extends Resource{
     $channel_id = $args['channel'];
     $seo_desc = $req->getParsedBody()['desc'];
     $seo_keywords = $req->getParsedBody()['keywords'];
+    $seo_content = $req->getParsedBody()['content'];
+    $seo_url = $req->getParsedBody()['url'];
 
     try {
-
       $channel = Channel::find($channel_id);
       $channel->seo_desc = $seo_desc;
       $channel->seo_keywords = $seo_keywords;
+      $channel->seo_content = $seo_content;
+      $channel->seo_url = $seo_url;
       if( $channel->save() )
         return $this->respond($res, ['success'=>true]);
       else {
@@ -101,6 +105,20 @@ class Channels extends Resource{
           'msg' => 'Channel Not Found'
         ]
       ], 404);
+    }
+  }
+
+  public function updateChannelTitle($req, $res, $args){
+    $channelID = $args['channel'];
+    $newTitle = $req->getParsedBody()['title'];
+    try{
+      $channel = Channel::find($channelID);
+      $channel->name = $newTitle;
+      if($channel->save()){
+        return $this->respond($res, ['channel'=>$channel->getDetails(false)]);
+      }
+    } catch(\ActiveRecord\RecordNotFound $e){
+      return $this->respond($res, ["error"=>'Channel Not Found'], 404);
     }
   }
 

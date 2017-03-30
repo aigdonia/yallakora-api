@@ -9,14 +9,16 @@
       ['streams', 'order' => 'sort asc' ]
     ];
 
-    public function getDetails(){
+    public function getDetails($logo=true){
       $attributes = [
         "name" => $this->id,
         "title" => $this->name,
         "seo_desc" => $this->seo_desc,
-        "seo_keywords" => $this->seo_keywords
+        "seo_keywords" => $this->seo_keywords,
+        "seo_content" => $this->seo_content,
+        "seo_url" => $this->seo_url,
       ];
-      if(!empty($this->logo)){
+      if($logo && !empty($this->logo)){
         $path = 'myfolder/myimage.png';
         $type = pathinfo($this->logo, PATHINFO_EXTENSION);
         $data = file_get_contents($this->logo);

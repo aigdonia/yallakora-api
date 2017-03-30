@@ -10,6 +10,7 @@ class Streams extends Resource{
     $this->post('/channels/{channel_id}/stream', [$this, 'createNewStream']);
     $this->patch('/streams/sort', [$this, 'sortChannelStreams']);
     $this->patch('/streams/status', [$this, 'setChannelStatus']); // Activate-Deactivate
+    $this->patch('/streams/tag', [$this, 'setStreamTags']); // Activate-Deactivate
     $this->patch('/streams/move', [$this, 'moveStreamsToChannel']); // Move to Other Channel
     $this->patch('/streams/remove', [$this, 'deleteStreams']); // Delete Channels
 
@@ -107,6 +108,31 @@ class Streams extends Resource{
 
     $v = Stream::update_all([
       'set' => ['status' => $status] ,
+      'conditions' => ['id in (?)', $streamIDs]
+    ]);
+
+    $streamsObj = Stream::find($streamIDs);
+    if(is_array($streamsObj)){
+      $streams = array_reduce($streamsObj, function($coll,$single){
+        $coll[] = $single->getDetails();
+        return $coll;
+      });
+    } else {
+      $streams = [ $streamsObj->getDetails() ];
+    }
+
+    return $this->respond($res,[
+      'streams' => $streams,
+    ]);
+  }
+
+  public function setStreamTags($req, $res, $args){
+    $params = $req->getParsedBody();
+    $streamIDs = $params['streams'];
+    $tag = $params['tag'];
+
+    $v = Stream::update_all([
+      'set' => ['tag' => $tag] ,
       'conditions' => ['id in (?)', $streamIDs]
     ]);
 
